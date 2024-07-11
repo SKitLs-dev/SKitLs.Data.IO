@@ -11,7 +11,7 @@
     <Copyright>Copyright (C) 2024, SKitLs</Copyright>
     <PackageIcon>libIcon_dataio.png</PackageIcon>
     <PackageTags>Stream, Input, Output, Data, Excel, Ef</PackageTags>
-    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <AssemblyVersion>1.0.1</AssemblyVersion>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
@@ -19,18 +19,14 @@
     <Description>SKitLs.Data.IO provides a universal interface for efficient data input and output operations, offering seamless reading and writing capabilities between disk storage and application memory.</Description>
     <PackageProjectUrl>https://github.com/SKitLs-dev/SKitLs.Data.IO</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>Initial Release
-(+) Basic I/O interfaces: IDataReader, IDataWriter
-(+) Basic Excel Support
-(+) Basic Ef Support</PackageReleaseNotes>
+    <PackageReleaseNotes>(!) Breaking: ModelDso namespace update (root SKitLs.Data.IO now)
+
+(~) Updated: README
+(~) Updated: LICENSE</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\libIcon_dataio.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Include="..\LICENSE">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
@@ -42,6 +38,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Update="README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

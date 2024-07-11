@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SKitLs.Data.IO;
 using SKitLs.Data.IO.EfDbContext;
 
 namespace SKitLs.Data.Core.IO.EfDbContext

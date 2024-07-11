@@ -1,4 +1,4 @@
-﻿# SKitLs.Data.IO ![Static Badge](https://img.shields.io/badge/Follow%20GitHub%20-%20black?logo=github&link=https%3A%2F%2Fgithub.com%2FSargeras02%2FSKitLs.Bots.Telegram.git) ![GitHub](https://img.shields.io/github/license/Sargeras02/SKitLs.Bots.Telegram) ![Nuget](https://img.shields.io/nuget/v/SKitLs.Bots.Telegram.AdvancedMessages) [![CodeFactor](https://www.codefactor.io/repository/github/skitls-dev/skitls.bots.telegram/badge)](https://www.codefactor.io/repository/github/skitls-dev/skitls.bots.telegram)
+﻿# SKitLs.Data.IO ![Static Badge](https://img.shields.io/badge/Follow%20GitHub%20-%20black?logo=github&link=https%3A%2F%2Fgithub.com%2FSKitLs-Dev%2FSKitLs.Data.IO.git) ![GitHub](https://img.shields.io/github/license/SKitLs-Dev/SKitLs.Data.IO) ![Nuget](https://img.shields.io/nuget/v/SKitLs.Data.IO) [![CodeFactor](https://www.codefactor.io/repository/github/skitls-dev/skitls.data.io/badge)](https://www.codefactor.io/repository/github/skitls-dev/skitls.data.io)
 
 _README version: 24.VII_
 

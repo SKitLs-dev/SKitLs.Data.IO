@@ -1,4 +1,4 @@
-﻿namespace SKitLs.Data.IO.EfDbContext
+﻿namespace SKitLs.Data.IO
 {
     /// <summary>
     /// Represents the method that handles events related to <see cref="ModelDso{TId}"/> objects.
@@ -54,6 +54,11 @@
         /// Invokes the <see cref="SaveRequested"/> event to request saving the model.
         /// </summary>
         public void Save() => SaveRequested?.Invoke(this);
+
+        /// <summary>
+        /// Invokes the <see cref="DataChanged"/> event to notify data has been changed.
+        /// </summary>
+        public void OnDataChanged() => DataChanged?.Invoke(this);
 
         /// <inheritdoc/>
         public override int GetHashCode() => GetId().GetHashCode();

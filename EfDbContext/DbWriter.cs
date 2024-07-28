@@ -54,18 +54,18 @@ namespace SKitLs.Data.Core.IO.EfDbContext
         }
 
         /// <inheritdoc/>
-        /// <inheritdoc cref="WriteData(IEnumerable{TData})"/>
+        /// <inheritdoc cref="WriteDataList(IEnumerable{TData})"/>
         /// <exception cref="NotSupportedException">Thrown when the type <typeparamref name="T"/> does not match <typeparamref name="TData"/>.</exception>
-        public bool WriteData<T>(IEnumerable<T> items) where T : class
+        public bool WriteDataList<T>(IEnumerable<T> items) where T : class
         {
             if (typeof(T) == typeof(TData) || items.FirstOrDefault()?.GetType() == typeof(TData))
-                return WriteData(items.Select(x => (x as TData)!));
+                return WriteDataList(items.Select(x => (x as TData)!));
             else
                 throw new NotSupportedException();
         }
 
         /// <inheritdoc/>
-        public bool WriteData(IEnumerable<TData> items)
+        public bool WriteDataList(IEnumerable<TData> items)
         {
             try
             {
@@ -129,18 +129,18 @@ namespace SKitLs.Data.Core.IO.EfDbContext
         }
 
         /// <inheritdoc/>
-        /// <inheritdoc cref="WriteDataAsync(IEnumerable{TData}, CancellationTokenSource?)"/>
+        /// <inheritdoc cref="WriteDataListAsync(IEnumerable{TData}, CancellationTokenSource?)"/>
         /// <exception cref="NotSupportedException">Thrown when the type <typeparamref name="T"/> does not match <typeparamref name="TData"/>.</exception>
-        public async Task<bool> WriteDataAsync<T>(IEnumerable<T> items, CancellationTokenSource? cts) where T : class
+        public async Task<bool> WriteDataListAsync<T>(IEnumerable<T> items, CancellationTokenSource? cts) where T : class
         {
             if (typeof(T) == typeof(TData))
-                return await WriteDataAsync(items.Select(x => (x as TData)!), cts);
+                return await WriteDataListAsync(items.Select(x => (x as TData)!), cts);
             else
                 throw new NotSupportedException();
         }
 
         /// <inheritdoc/>
-        public async Task<bool> WriteDataAsync(IEnumerable<TData> items, CancellationTokenSource? cts)
+        public async Task<bool> WriteDataListAsync(IEnumerable<TData> items, CancellationTokenSource? cts)
         {
             cts ??= new();
             try

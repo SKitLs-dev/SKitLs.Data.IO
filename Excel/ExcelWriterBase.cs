@@ -1,5 +1,6 @@
 ﻿using OfficeOpenXml;
 using SKitLs.Data.IO.Excel;
+using System.Collections;
 
 namespace SKitLs.Data.Core.IO.Excel
 {
@@ -45,71 +46,63 @@ namespace SKitLs.Data.Core.IO.Excel
 
         /// <inheritdoc/>
         /// <exception cref="FileNotFoundException">Thrown when the Excel file specified by <see cref="ExcelIOBase.DataPath"/> does not exist.</exception>
-        public virtual bool WriteData(ExcelPartRow value)
-        {
-            var sourceFile = new FileInfo(DataPath);
-
-            if (!File.Exists(sourceFile.FullName))
-                throw new FileNotFoundException();
-
-            using var package = new ExcelPackage();
-            var worksheet = package.Workbook.Worksheets[WorksheetName];
-
-            try
-            {
-                for (int j = 0; j < value.Count; j++)
-                {
-                    worksheet.Cells[value.RowIndex, StartColumn + j].Value = value[j];
-                }
-                package.Save();
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
+        public virtual bool WriteData(ExcelPartRow value) => WriteDataList([value]);
 
         /// <inheritdoc/>
-        /// <inheritdoc cref="WriteData(IEnumerable{ExcelPartRow})"/>
+        /// <inheritdoc cref="WriteDataList(IEnumerable{ExcelPartRow})"/>
         /// <exception cref="NotSupportedException">Thrown when writing data of type <typeparamref name="TData"/> is not supported.</exception>
-        public virtual bool WriteData<T>(IEnumerable<T> items) where T : class
+        public virtual bool WriteDataList<T>(IEnumerable<T> items) where T : class
         {
             if (typeof(T) == typeof(TData))
-                return WriteData(items.Select(x => Convert((x as TData)!)).ToList());
+                return WriteDataList(items.Select(x => Convert((x as TData)!)).ToList());
             else if (typeof(T) == typeof(ExcelPartRow))
-                return WriteData(items.Select(x => (x as ExcelPartRow)!).ToList());
+                return WriteDataList(items.Select(x => (x as ExcelPartRow)!).ToList());
             else
                 throw new NotSupportedException();
         }
 
         /// <inheritdoc/>
         /// <exception cref="FileNotFoundException">Thrown when the Excel file specified by <see cref="ExcelIOBase.DataPath"/> does not exist.</exception>
-        public virtual bool WriteData(IEnumerable<ExcelPartRow> values)
+        public virtual bool WriteDataList(IEnumerable<ExcelPartRow> values)
         {
-            var sourceFile = new FileInfo(DataPath);
-
-            if (!File.Exists(sourceFile.FullName))
-                throw new FileNotFoundException();
-
-            using var package = new ExcelPackage();
-            var worksheet = package.Workbook.Worksheets[WorksheetName];
-
-            foreach (var part in values)
+            try
             {
-                try
+                var sourceFile = new FileInfo(DataPath);
+
+                if (!File.Exists(sourceFile.FullName))
+                    throw new FileNotFoundException();
+
+                using var package = new ExcelPackage(sourceFile);
+                var worksheet = package.Workbook.Worksheets[WorksheetName];
+
+                if (worksheet is null)
+                {
+                    if (CreateNewList)
+                    {
+                        worksheet = package.Workbook.Worksheets.Add(WorksheetName);
+                    }
+                    else
+                    {
+                        // Output the names of all worksheets in the workbook for debugging purposes
+                        var worksheetNames = package.Workbook.Worksheets.Select(ws => ws.Name);
+                        throw new NullReferenceException($"Worksheet not found: {WorksheetName}. Available worksheets: {string.Join(", ", worksheetNames)}");
+                    }
+                }
+
+                foreach (var part in values)
                 {
                     for (int j = 0; j < part.Count; j++)
                     {
                         worksheet.Cells[part.RowIndex, StartColumn + j].Value = part[j];
                     }
                 }
-                catch (Exception)
-                {
-                    return false;
-                }
+                package.Save();
+            }
+            catch (Exception)
+            {
+                if (!HandleInnerExceptions)
+                    throw;
+                return false;
             }
             return true;
         }
@@ -119,75 +112,77 @@ namespace SKitLs.Data.Core.IO.Excel
         public virtual async Task<bool> WriteDataAsync<T>(T item, CancellationTokenSource? cts) where T : class
         {
             cts ??= new();
-            try
-            {
-                return await Task.Run(() =>
-                {
-                    return WriteData(item);
-                });
-            }
-            catch (Exception)
-            {
-                cts.Cancel();
-                throw;
-            }
+            if (typeof(T) == typeof(TData))
+                return await WriteDataAsync(Convert((item as TData)!), cts);
+            else if (typeof(T) == typeof(ExcelPartRow))
+                return await WriteDataAsync((item as ExcelPartRow)!, cts);
+            else
+                throw new NotSupportedException();
         }
 
         /// <inheritdoc/>
         /// <inheritdoc cref="WriteData(ExcelPartRow)"/>
-        public virtual async Task<bool> WriteDataAsync(ExcelPartRow value, CancellationTokenSource? cts)
+        public virtual async Task<bool> WriteDataAsync(ExcelPartRow value, CancellationTokenSource? cts) => await WriteDataListAsync([value], cts);
+
+        /// <inheritdoc/>
+        /// <inheritdoc cref="WriteDataList{T}(IEnumerable{T})"/>
+        public virtual async Task<bool> WriteDataListAsync<T>(IEnumerable<T> items, CancellationTokenSource? cts) where T : class
         {
             cts ??= new();
-            try
-            {
-                return await Task.Run(() =>
-                {
-                    return WriteData(value);
-                });
-            }
-            catch (Exception)
-            {
-                cts.Cancel();
-                throw;
-            }
+            if (typeof(T) == typeof(TData))
+                return await WriteDataListAsync(items.Select(x => Convert((x as TData)!)).ToList(), cts);
+            else if (typeof(T) == typeof(ExcelPartRow))
+                return await WriteDataListAsync(items.Select(x => (x as ExcelPartRow)!).ToList(), cts);
+            else
+                throw new NotSupportedException();
         }
 
         /// <inheritdoc/>
-        /// <inheritdoc cref="WriteData{T}(IEnumerable{T})"/>
-        public virtual async Task<bool> WriteDataAsync<T>(IEnumerable<T> items, CancellationTokenSource? cts) where T : class
+        /// <inheritdoc cref="WriteDataList(IEnumerable{ExcelPartRow})"/>
+        public virtual async Task<bool> WriteDataListAsync(IEnumerable<ExcelPartRow> values, CancellationTokenSource? cts)
         {
             cts ??= new();
             try
             {
-                return await Task.Run(() =>
-                {
-                    return WriteData(items);
-                });
-            }
-            catch (Exception)
-            {
-                cts.Cancel();
-                throw;
-            }
-        }
+                var sourceFile = new FileInfo(DataPath);
 
-        /// <inheritdoc/>
-        /// <inheritdoc cref="WriteData(IEnumerable{ExcelPartRow})"/>
-        public virtual async Task<bool> WriteDataAsync(IEnumerable<ExcelPartRow> values, CancellationTokenSource? cts)
-        {
-            cts ??= new();
-            try
-            {
-                return await Task.Run(() =>
+                if (!File.Exists(sourceFile.FullName))
+                    throw new FileNotFoundException();
+
+                using var package = new ExcelPackage(sourceFile);
+                var worksheet = package.Workbook.Worksheets[WorksheetName];
+
+                if (worksheet is null)
                 {
-                    return WriteData(values);
-                });
+                    if (CreateNewList)
+                    {
+                        worksheet = package.Workbook.Worksheets.Add(WorksheetName);
+                    }
+                    else
+                    {
+                        // Output the names of all worksheets in the workbook for debugging purposes
+                        var worksheetNames = package.Workbook.Worksheets.Select(ws => ws.Name);
+                        throw new NullReferenceException($"Worksheet not found: {WorksheetName}. Available worksheets: {string.Join(", ", worksheetNames)}");
+                    }
+                }
+
+                foreach (var part in values)
+                {
+                    for (int j = 0; j < part.Count; j++)
+                    {
+                        worksheet.Cells[part.RowIndex, StartColumn + j].Value = part[j];
+                    }
+                }
+                await package.SaveAsync();
             }
             catch (Exception)
             {
                 cts.Cancel();
-                throw;
+                if (!HandleInnerExceptions)
+                    throw;
+                return false;
             }
+            return true;
         }
     }
 }

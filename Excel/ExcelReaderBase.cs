@@ -4,6 +4,7 @@ using SKitLs.Data.IO.Excel;
 namespace SKitLs.Data.Core.IO.Excel
 {
     // TODO Exceptions
+    // TODO <inheritdoc> exceptions
 
     /// <summary>
     /// Base class for reading data from Excel files, providing synchronous and asynchronous operations.
@@ -79,7 +80,7 @@ namespace SKitLs.Data.Core.IO.Excel
         {
             var result = new List<ExcelPartRow>();
             var sourceFile = new FileInfo(DataPath);
-            
+
             if (!File.Exists(sourceFile.FullName))
                 throw new FileNotFoundException();
 

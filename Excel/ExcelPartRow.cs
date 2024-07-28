@@ -49,7 +49,7 @@
         {
             get
             {
-                var relativeIndex = index - StartColumnIndex;
+                var relativeIndex = index - (StartColumnIndex - 1);
                 return relativeIndex >= 0 && relativeIndex < Values.Count ? Values[relativeIndex] : throw new IndexOutOfRangeException();
             }
         }

@@ -11,7 +11,7 @@
     <Copyright>Copyright (C) 2024, SKitLs</Copyright>
     <PackageIcon>libIcon_dataio.png</PackageIcon>
     <PackageTags>Stream, Input, Output, Data, Excel, Ef</PackageTags>
-    <AssemblyVersion>1.0.1</AssemblyVersion>
+    <AssemblyVersion>2.0.0</AssemblyVersion>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
@@ -19,10 +19,31 @@
     <Description>SKitLs.Data.IO provides a universal interface for efficient data input and output operations, offering seamless reading and writing capabilities between disk storage and application memory.</Description>
     <PackageProjectUrl>https://github.com/SKitLs-dev/SKitLs.Data.IO</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>(!) Breaking: ModelDso namespace update (root SKitLs.Data.IO now)
+    <PackageReleaseNotes>Breaking Changes
+IDataWriter, IDataWriter&lt;T&gt;:
+(~) Renamed: WriteData(IEnum) -&gt; WriteDataList(IEnum)
+(~) Renamed: WriteDataAsync(IEnum) -&gt; WriteDataListAsync(IEnum)
 
-(~) Updated: README
-(~) Updated: LICENSE</PackageReleaseNotes>
+---
+
+ExcelIOBase:
+(+) Added: bool CreateNewList
+(+) Added: bool HandleInnerExceptions
+
+(~) Fixed: ExcelPartRow this[] value retrieving
+
+ExcelWriterBase:
+(~) Fixed: WriteData not work bug
+(+) Added: ExcelIOBase capabilities support
+(~) Refactored Inner Code
+
+JSON Support
+(+) Added: JsonIOBase class
+(+) Added: JsonWriter class
+(+) Added: JsonReader class
+
+Hot Shortcuts (beta):
+(+) Added: HotIO class</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,6 +56,8 @@
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="7.2.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="SKitLs.Utils.Extensions" Version="0.2.0" />
   </ItemGroup>
 
   <ItemGroup>

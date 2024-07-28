@@ -54,5 +54,15 @@
         /// Gets or sets the ending column index for reading data from the worksheet.
         /// </summary>
         public int EndColumn { get; set; } = endColumn > 0 ? endColumn : throw new ArgumentOutOfRangeException(nameof(endColumn));
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to create a new list if the specified list does not exist.
+        /// </summary>
+        public bool CreateNewList { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to handle inner exceptions during operations.
+        /// </summary>
+        public bool HandleInnerExceptions { get; set; } = false;
     }
 }

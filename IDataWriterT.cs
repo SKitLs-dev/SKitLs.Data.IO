@@ -18,7 +18,7 @@
         /// </summary>
         /// <param name="items">The collection of data items to write.</param>
         /// <returns><see langword="true"/> if the write operation was successful; otherwise, <see langword="false"/>.</returns>
-        public bool WriteData(IEnumerable<TData> items);
+        public bool WriteDataList(IEnumerable<TData> items);
 
         /// <summary>
         /// Writes a single data item asynchronously to the data source.
@@ -34,6 +34,6 @@
         /// <param name="items">The collection of data items to write.</param>
         /// <param name="cts">The optional cancellation token source to cancel the write operation.</param>
         /// <returns><see langword="true"/> if the write operation was successful; otherwise, <see langword="false"/>.</returns>
-        public Task<bool> WriteDataAsync(IEnumerable<TData> items, CancellationTokenSource? cts);
+        public Task<bool> WriteDataListAsync(IEnumerable<TData> items, CancellationTokenSource? cts);
     }
 }

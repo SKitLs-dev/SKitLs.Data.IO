@@ -37,6 +37,9 @@ namespace SKitLs.Data.IO.Json
             }
 
             var jsonData = File.ReadAllText(DataPath);
+            if (string.IsNullOrEmpty(jsonData))
+                return [];
+
             return JsonConvert.DeserializeObject<IEnumerable<TData>>(jsonData, JsonSerializerSettings) ?? throw new JsonSerializationException();
         }
 

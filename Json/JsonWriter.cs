@@ -164,6 +164,8 @@ namespace SKitLs.Data.IO.Json
             cts ??= new();
             using var reader = new StreamReader(DataPath);
             var jsonData = await reader.ReadToEndAsync(cts.Token);
+            if (string.IsNullOrEmpty(jsonData))
+                return [];
             return JsonConvert.DeserializeObject<List<T>>(jsonData, JsonSerializerSettings) ?? throw new JsonSerializationException("Failed to deserialize JSON data.");
         }
 

@@ -8,6 +8,18 @@ namespace SKitLs.Data.IO.Shortcuts
     [Obsolete("Beta")]
     public static class HotIO
     {
+        /// <summary>
+        /// Gets or sets the JSON files extensions. Use <see langword="null"/> to prevent from automatic Json path fit.
+        /// </summary>
+        public static string? JsonExtension { get; set; } = ".json";
+
+        private static string FitJsonPath(string path)
+        {
+            if (JsonExtension is not null && path.EndsWith(JsonExtension))
+                path += JsonExtension;
+            return path;
+        }
+
         // TODO
 
         /// <summary>
@@ -31,6 +43,7 @@ namespace SKitLs.Data.IO.Shortcuts
             
             try
             {
+                path = FitJsonPath(path);
                 var jsonData = JsonConvert.SerializeObject(obj, JsonSerializerSettings);
                 File.WriteAllText(path, jsonData);
             }
@@ -56,6 +69,7 @@ namespace SKitLs.Data.IO.Shortcuts
             
             try
             {
+                path = FitJsonPath(path);
                 var jsonData = JsonConvert.SerializeObject(obj, JsonSerializerSettings);
                 await File.WriteAllTextAsync(path, jsonData);
             }
@@ -81,6 +95,7 @@ namespace SKitLs.Data.IO.Shortcuts
 
             try
             {
+                path = FitJsonPath(path);
                 if (!File.Exists(path))
                     throw new FileNotFoundException($"The file specified does not exist: {path}");
 
@@ -109,6 +124,7 @@ namespace SKitLs.Data.IO.Shortcuts
 
             try
             {
+                path = FitJsonPath(path);
                 if (!File.Exists(path))
                     throw new FileNotFoundException($"The file specified does not exist: {path}");
 
@@ -138,6 +154,7 @@ namespace SKitLs.Data.IO.Shortcuts
 
             try
             {
+                path = FitJsonPath(path);
                 if (!File.Exists(path))
                     throw new FileNotFoundException($"The file specified does not exist: {path}");
 
@@ -167,6 +184,7 @@ namespace SKitLs.Data.IO.Shortcuts
 
             try
             {
+                path = FitJsonPath(path);
                 if (!File.Exists(path))
                     throw new FileNotFoundException($"The file specified does not exist: {path}");
 

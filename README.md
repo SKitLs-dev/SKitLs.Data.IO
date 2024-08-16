@@ -1,4 +1,4 @@
-﻿# SKitLs.Data.IO ![Static Badge](https://img.shields.io/badge/Follow%20GitHub%20-%20black?logo=github&link=https%3A%2F%2Fgithub.com%2FSKitLs-Dev%2FSKitLs.Data.IO.git) ![GitHub](https://img.shields.io/github/license/SKitLs-Dev/SKitLs.Data.IO) ![Nuget](https://img.shields.io/nuget/v/SKitLs.Data.IO) [![CodeFactor](https://www.codefactor.io/repository/github/skitls-dev/skitls.data.io/badge)](https://www.codefactor.io/repository/github/skitls-dev/skitls.data.io)
+﻿# SKitLs.Data.IO ![Static Badge](https://img.shields.io/badge/Follow%20GitHub%20-%20black?logo=github&link=https%3A%2F%2Fgithub.com%2FSKitLs-Dev%2FSKitLs.Data.IO.git) ![GitHub](https://img.shields.io/github/license/SKitLs-Dev/SKitLs.Data.IO) ![Nuget](https://img.shields.io/nuget/v/SKitLs.Data.IO)
 
 _README version: 24.VII_
 
@@ -8,6 +8,13 @@ The library includes interfaces such as `IReader` and `IWriter`, which serve as 
 These interfaces ensure flexibility and ease of use, making it simple to implement efficient data management solutions in various applications.
 By abstracting the complexity of data I/O, SKitLs.Data.IO enables developers to focus on the essential functionality of their software, ensuring robust and high-performance data handling.
 
+# Contents
+* [Setup](#Setup)
+* [Usage](#Usage)
+* [Contributors](#Contributors)
+* [License](#License)
+* [Developer contact](#Developer-contact)
+* [Notes](#Notes)
 
 # Setup
 

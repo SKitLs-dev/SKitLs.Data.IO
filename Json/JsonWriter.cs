@@ -110,6 +110,7 @@ namespace SKitLs.Data.IO.Json
             return true;
         }
 
+        // TODO
         /// <summary>
         /// Writes a list of data items to the JSON file.
         /// </summary>
@@ -124,7 +125,7 @@ namespace SKitLs.Data.IO.Json
             foreach (var item in items)
             {
                 var existingItemIndex = allItems.FindIndex(x => x.GetId().Equals(item.GetId()));
-                if (existingItemIndex >= 0)
+                if (existingItemIndex > -1)
                 {
                     allItems[existingItemIndex] = item;
                 }
@@ -133,7 +134,6 @@ namespace SKitLs.Data.IO.Json
                     allItems.Add(item);
                 }
             }
-
             await WriteAllItemsAsync(allItems, cts);
             return true;
         }

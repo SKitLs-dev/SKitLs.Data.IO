@@ -1,11 +1,12 @@
 ﻿using Newtonsoft.Json;
+using SKitLs.Utils.Extensions.Strings;
 
 namespace SKitLs.Data.IO.Shortcuts
 {
     /// <summary>
     /// Provides utility methods for saving and loading data to and from files.
     /// </summary>
-    [Obsolete("Beta")]
+    [Obsolete("Beta. Not tested.")]
     public static class HotIO
     {
         /// <summary>
@@ -13,13 +14,100 @@ namespace SKitLs.Data.IO.Shortcuts
         /// </summary>
         public static string? JsonExtension { get; set; } = ".json";
 
-        private static string FitJsonPath(string path)
+        /// <summary>
+        /// Checks and corrects the provided <paramref name="path"/> as a *.json using <see cref="JsonExtension"/> property value.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static string FitJsonPath(string path)
         {
-            if (JsonExtension is not null && path.EndsWith(JsonExtension))
+            if (JsonExtension is not null && !path.EndsWith(JsonExtension))
                 path += JsonExtension;
             return path;
         }
 
+        /// <summary>
+        /// Saves a string to a specified file.
+        /// </summary>
+        /// <param name="text">The text to save.</param>
+        /// <param name="path">The path to the file where the text will be saved.</param>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is null or empty.</exception>
+        /// <exception cref="IOException">Thrown when there is an error writing to the file.</exception>
+        public static void Save(this string text, string path)
+        {
+            ArgumentException.ThrowIfNullOrEmpty(path);
+            try
+            {
+                File.WriteAllText(path, text);
+            }
+            catch (Exception ex)
+            {
+                throw new IOException($"An error occurred while saving data to file: {path}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously saves a string to a specified file.
+        /// </summary>
+        /// <param name="text">The text to save.</param>
+        /// <param name="path">The path to the file where the text will be saved.</param>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is null or empty.</exception>
+        /// <exception cref="IOException">Thrown when there is an error writing to the file.</exception>
+        public static async Task SaveAsync(this string text, string path)
+        {
+            ArgumentException.ThrowIfNullOrEmpty(path);
+
+            try
+            {
+                await File.WriteAllTextAsync(path, text);
+            }
+            catch (Exception ex)
+            {
+                throw new IOException($"An error occurred while saving data to file: {path}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Loads the content of a file as a string.
+        /// </summary>
+        /// <param name="path">The path to the file.</param>
+        /// <returns>The content of the file as a string.</returns>
+        /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
+        /// <exception cref="IOException">Thrown when an I/O error occurs while loading the file.</exception>
+        public static string Load(string path)
+        {
+            ArgumentException.ThrowIfNullOrEmpty(path);
+            try
+            {
+                return File.ReadAllText(path);
+            }
+            catch (Exception ex)
+            {
+                throw new IOException($"An error occurred while loading data from file: {path}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously loads the content of a file as a string.
+        /// </summary>
+        /// <param name="path">The path to the file.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains the content of the file as a string.</returns>
+        /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
+        /// <exception cref="IOException">Thrown when an I/O error occurs while loading the file.</exception>
+        public static async Task<string> LoadAsync(string path)
+        {
+            ArgumentException.ThrowIfNullOrEmpty(path);
+            try
+            {
+                return await File.ReadAllTextAsync(path);
+            }
+            catch (Exception ex)
+            {
+                throw new IOException($"An error occurred while loading data from file: {path}", ex);
+            }
+        }
+
+        #region JSON
         // TODO
 
         /// <summary>
@@ -35,7 +123,6 @@ namespace SKitLs.Data.IO.Shortcuts
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="obj"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is <see langword="null"/> or empty.</exception>
         /// <exception cref="IOException">Thrown when there is an error writing to the file.</exception>
-        [Obsolete("Beta")]
         public static void SaveJson(object obj, string path)
         {
             ArgumentNullException.ThrowIfNull(obj);
@@ -61,7 +148,6 @@ namespace SKitLs.Data.IO.Shortcuts
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="obj"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is <see langword="null"/> or empty.</exception>
         /// <exception cref="IOException">Thrown when there is an error writing to the file.</exception>
-        [Obsolete("Beta")]
         public static async Task SaveJsonAsync(object obj, string path)
         {
             ArgumentNullException.ThrowIfNull(obj);
@@ -88,7 +174,6 @@ namespace SKitLs.Data.IO.Shortcuts
         /// <exception cref="FileNotFoundException">Thrown when the file specified by <paramref name="path"/> does not exist.</exception>
         /// <exception cref="IOException">Thrown when there is an error reading from the file.</exception>
         /// <exception cref="JsonSerializationException">Thrown when there is an error deserializing the JSON data.</exception>
-        [Obsolete("Beta")]
         public static object LoadJson(string path)
         {
             ArgumentException.ThrowIfNullOrEmpty(path);
@@ -117,7 +202,6 @@ namespace SKitLs.Data.IO.Shortcuts
         /// <exception cref="FileNotFoundException">Thrown when the file specified by <paramref name="path"/> does not exist.</exception>
         /// <exception cref="IOException">Thrown when there is an error reading from the file.</exception>
         /// <exception cref="JsonSerializationException">Thrown when there is an error deserializing the JSON data.</exception>
-        [Obsolete("Beta")]
         public static async Task<object> LoadJsonAsync(string path)
         {
             ArgumentException.ThrowIfNullOrEmpty(path);
@@ -147,7 +231,6 @@ namespace SKitLs.Data.IO.Shortcuts
         /// <exception cref="FileNotFoundException">Thrown when the file specified by <paramref name="path"/> does not exist.</exception>
         /// <exception cref="IOException">Thrown when there is an error reading from the file.</exception>
         /// <exception cref="JsonSerializationException">Thrown when there is an error deserializing the JSON data.</exception>
-        [Obsolete("Beta")]
         public static T LoadJson<T>(string path)
         {
             ArgumentException.ThrowIfNullOrEmpty(path);
@@ -177,7 +260,6 @@ namespace SKitLs.Data.IO.Shortcuts
         /// <exception cref="FileNotFoundException">Thrown when the file specified by <paramref name="path"/> does not exist.</exception>
         /// <exception cref="IOException">Thrown when there is an error reading from the file.</exception>
         /// <exception cref="JsonSerializationException">Thrown when there is an error deserializing the JSON data.</exception>
-        [Obsolete("Beta")]
         public static async Task<T> LoadJsonAsync<T>(string path)
         {
             ArgumentException.ThrowIfNullOrEmpty(path);
@@ -205,7 +287,6 @@ namespace SKitLs.Data.IO.Shortcuts
         /// <returns>A JSON string representation of the object.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="obj"/> is null.</exception>
         /// <exception cref="IOException">Thrown when there is an error during serialization.</exception>
-        [Obsolete("Beta")]
         public static string Json<T>(this T obj)
         {
             ArgumentNullException.ThrowIfNull(obj);
@@ -219,49 +300,176 @@ namespace SKitLs.Data.IO.Shortcuts
                 throw new IOException("An error occurred while serializing the object to JSON.", ex);
             }
         }
+        #endregion
 
+        #region Plain
         /// <summary>
-        /// Saves a string to a specified file.
+        /// Loads the content of a file as a list of lines.
         /// </summary>
-        /// <param name="text">The text to save.</param>
-        /// <param name="path">The path to the file where the text will be saved.</param>
-        /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is null or empty.</exception>
-        /// <exception cref="IOException">Thrown when there is an error writing to the file.</exception>
-        [Obsolete("Beta")]
-        public static void Save(this string text, string path)
+        /// <param name="path">The path to the file.</param>
+        /// <returns>A list of lines from the file.</returns>
+        /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
+        /// <exception cref="IOException">Thrown when an I/O error occurs while loading the file.</exception>
+        public static List<string> LoadLines(string path)
         {
-            ArgumentException.ThrowIfNullOrEmpty(path);
-
             try
             {
-                File.WriteAllText(path, text);
+                return [.. File.ReadAllLines(path)];
             }
             catch (Exception ex)
             {
-                throw new IOException($"An error occurred while saving data to file: {path}", ex);
+                throw new IOException($"An error occurred while loading data from file: {path}", ex);
             }
         }
 
         /// <summary>
-        /// Asynchronously saves a string to a specified file.
+        /// Asynchronously loads the content of a file as a list of lines.
         /// </summary>
-        /// <param name="text">The text to save.</param>
-        /// <param name="path">The path to the file where the text will be saved.</param>
-        /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is null or empty.</exception>
-        /// <exception cref="IOException">Thrown when there is an error writing to the file.</exception>
-        [Obsolete("Beta")]
-        public static async Task SaveAsync(this string text, string path)
+        /// <param name="path">The path to the file.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains a list of lines from the file.</returns>
+        /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
+        /// <exception cref="IOException">Thrown when an I/O error occurs while loading the file.</exception>
+        public static async Task<List<string>> LoadLinesAsync(string path)
         {
-            ArgumentException.ThrowIfNullOrEmpty(path);
-
             try
             {
-                await File.WriteAllTextAsync(path, text);
+                return [.. await File.ReadAllLinesAsync(path)];
             }
             catch (Exception ex)
             {
-                throw new IOException($"An error occurred while saving data to file: {path}", ex);
+                throw new IOException($"An error occurred while loading data from file: {path}", ex);
             }
         }
+
+        /// <summary>
+        /// Loads key-value pairs from a file where each line contains a pair separated by a specified <paramref name="separator"/>.
+        /// </summary>
+        /// <param name="path">The path to the file.</param>
+        /// <param name="separator">The string used to separate keys from values.</param>
+        /// <returns>A dictionary containing the key-value pairs.</returns>
+        /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
+        /// <exception cref="IOException">Thrown when an I/O error occurs while loading the file.</exception>
+        public static Dictionary<string, string> LoadPairs(string path, string separator = "=")
+        {
+            ArgumentException.ThrowIfNullOrEmpty(path);
+            var result = new Dictionary<string, string>();
+            var lines = LoadLines(path);
+            foreach (var line in lines)
+            {
+                var values = line.Split(separator).Select(x => x.Trim()).ToList();
+                result.Add(values[0], string.Join(separator, values.Skip(1)));
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Asynchronously loads key-value pairs from a file where each line contains a pair separated by a specified separator.
+        /// </summary>
+        /// <param name="path">The path to the file.</param>
+        /// <param name="separator">The string used to separate keys from values.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains a dictionary with key-value pairs.</returns>
+        /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
+        /// <exception cref="IOException">Thrown when an I/O error occurs while loading the file.</exception>
+        public static async Task<Dictionary<string, string>> LoadPairsAsync(string path, string separator = "=")
+        {
+            ArgumentException.ThrowIfNullOrEmpty(path);
+            var result = new Dictionary<string, string>();
+            var lines = await LoadLinesAsync(path);
+            foreach (var line in lines)
+            {
+                var values = line.Split(separator).Select(x => x.Trim()).ToList();
+                result.Add(values[0], string.Join(separator, values.Skip(1)));
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Saves a collection of lines to a file.
+        /// </summary>
+        /// <param name="lines">The lines to save.</param>
+        /// <param name="path">The path to the file.</param>
+        /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
+        /// <exception cref="IOException">Thrown when an I/O error occurs while saving the file.</exception>
+        public static void SaveLines(IEnumerable<string> lines, string path) => string.Join(Environment.NewLine, lines).Save(path);
+
+        /// <summary>
+        /// Asynchronously saves a collection of lines to a file.
+        /// </summary>
+        /// <param name="lines">The lines to save.</param>
+        /// <param name="path">The path to the file.</param>
+        /// <returns>A task that represents the asynchronous save operation.</returns>
+        /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
+        /// <exception cref="IOException">Thrown when an I/O error occurs while saving the file.</exception>
+        public static async Task SaveLinesAsync(IEnumerable<string> lines, string path) => await string.Join(Environment.NewLine, lines).SaveAsync(path);
+
+        /// <summary>
+        /// Saves a collection of lines to a file.
+        /// </summary>
+        /// <param name="lines">The lines to save.</param>
+        /// <param name="path">The path to the file.</param>
+        /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
+        /// <exception cref="IOException">Thrown when an I/O error occurs while saving the file.</exception>
+        public static void SaveAsLines(this IEnumerable<string> lines, string path) => SaveLines(lines, path);
+
+        /// <summary>
+        /// Asynchronously saves a collection of lines to a file.
+        /// </summary>
+        /// <param name="lines">The lines to save.</param>
+        /// <param name="path">The path to the file.</param>
+        /// <returns>A task that represents the asynchronous save operation.</returns>
+        /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
+        /// <exception cref="IOException">Thrown when an I/O error occurs while saving the file.</exception>
+        public static async Task SaveAsLinesAsync(this IEnumerable<string> lines, string path) => await SaveLinesAsync(lines, path);
+
+        /// <summary>
+        /// Saves a collection of key-value pairs to a file, each pair on a new line separated by a specified <paramref name="separator"/>.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
+        /// <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
+        /// <param name="pairs">The key-value pairs to save.</param>
+        /// <param name="path">The path to the file.</param>
+        /// <param name="separator">The separator used between keys and values.</param>
+        /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
+        /// <exception cref="IOException">Thrown when an I/O error occurs while saving the file.</exception>
+        public static void SavePairs<TKey, TValue>(IDictionary<TKey, TValue> pairs, string path, string separator = " = ") => SaveLines(pairs.Select(x => $"{x.Key}{separator}{x.Value}"), path);
+
+        /// <summary>
+        /// Asynchronously saves a collection of key-value pairs to a file, each pair on a new line separated by a specified <paramref name="separator"/>.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
+        /// <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
+        /// <param name="pairs">The key-value pairs to save.</param>
+        /// <param name="path">The path to the file.</param>
+        /// <param name="separator">The separator used between keys and values.</param>
+        /// <returns>A task that represents the asynchronous save operation.</returns>
+        /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
+        /// <exception cref="IOException">Thrown when an I/O error occurs while saving the file.</exception>
+        public static async Task SavePairsAsync<TKey, TValue>(IDictionary<TKey, TValue> pairs, string path, string separator = " = ") => await SaveLinesAsync(pairs.Select(x => $"{x.Key}{separator}{x.Value}"), path);
+
+        /// <summary>
+        /// Saves a collection of key-value pairs to a file, each pair on a new line separated by a specified <paramref name="separator"/>.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
+        /// <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
+        /// <param name="pairs">The key-value pairs to save.</param>
+        /// <param name="path">The path to the file.</param>
+        /// <param name="separator">The separator used between keys and values.</param>
+        /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
+        /// <exception cref="IOException">Thrown when an I/O error occurs while saving the file.</exception>
+        public static void SaveAsPairs<TKey, TValue>(this IDictionary<TKey, TValue> pairs, string path, string separator = " = ") => SavePairs(pairs, path, separator);
+
+        /// <summary>
+        /// Asynchronously saves a collection of key-value pairs to a file, each pair on a new line separated by a specified <paramref name="separator"/>.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the keys in the dictionary.</typeparam>
+        /// <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
+        /// <param name="pairs">The key-value pairs to save.</param>
+        /// <param name="path">The path to the file.</param>
+        /// <param name="separator">The separator used between keys and values.</param>
+        /// <returns>A task that represents the asynchronous save operation.</returns>
+        /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
+        /// <exception cref="IOException">Thrown when an I/O error occurs while saving the file.</exception>
+        public static async Task SaveAsPairsAsync<TKey, TValue>(this IDictionary<TKey, TValue> pairs, string path, string separator = " = ") => await SavePairsAsync(pairs, path, separator);
+        #endregion
     }
 }

@@ -11,7 +11,7 @@
     <Copyright>Copyright (C) 2024, SKitLs</Copyright>
     <PackageIcon>libIcon_dataio.png</PackageIcon>
     <PackageTags>Stream, Input, Output, Data, Excel, Ef</PackageTags>
-    <AssemblyVersion>2.0.2</AssemblyVersion>
+    <AssemblyVersion>2.1.0</AssemblyVersion>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
@@ -19,8 +19,12 @@
     <Description>SKitLs.Data.IO provides a universal interface for efficient data input and output operations, offering seamless reading and writing capabilities between disk storage and application memory.</Description>
     <PackageProjectUrl>https://github.com/SKitLs-dev/SKitLs.Data.IO</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>(+) HotIO: string JsonExtension ('.json')
-(+) HotIO (.Json members): Auto-check and -add for the correct KSON files extension</PackageReleaseNotes>
+    <PackageReleaseNotes>HotIO:
+(+) Added: Load/Async() (mostly internal needs)
+(+) Added: LoadLines/Async()
+(+) Added: SaveLines/Async() (inc. this IEnum&lt;string&gt;)
+(+) Added: LoadPairs/Async()
+(+) Added: SavePairs/Asunc() (inc. this IDict&lt;T,T&gt;)</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

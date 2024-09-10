@@ -17,6 +17,6 @@
         /// </summary>
         /// <param name="cts">Optional: cancellation token source to cancel the read operation.</param>
         /// <returns>An enumerable collection of data items of type <typeparamref name="TData"/> as the result.</returns>
-        public Task<IEnumerable<TData>> ReadDataAsync(CancellationTokenSource? cts);
+        public Task<IEnumerable<TData>> ReadDataAsync(CancellationTokenSource? cts = null);
     }
 }

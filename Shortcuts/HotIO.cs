@@ -51,18 +51,20 @@ namespace SKitLs.Data.IO.Shortcuts
         /// </summary>
         /// <param name="text">The text to save.</param>
         /// <param name="path">The path to the file where the text will be saved.</param>
+        /// <param name="cts">The token source to monitor for cancellation requests.</param>
         /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is null or empty.</exception>
         /// <exception cref="IOException">Thrown when there is an error writing to the file.</exception>
-        public static async Task SaveAsync(this string text, string path)
+        public static async Task SaveAsync(this string text, string path, CancellationTokenSource? cts = null)
         {
             ArgumentException.ThrowIfNullOrEmpty(path);
-
+            cts ??= new();
             try
             {
-                await File.WriteAllTextAsync(path, text);
+                await File.WriteAllTextAsync(path, text, cts.Token);
             }
             catch (Exception ex)
             {
+                cts.Cancel();
                 throw new IOException($"An error occurred while saving data to file: {path}", ex);
             }
         }
@@ -91,18 +93,21 @@ namespace SKitLs.Data.IO.Shortcuts
         /// Asynchronously loads the content of a file as a string.
         /// </summary>
         /// <param name="path">The path to the file.</param>
+        /// <param name="cts">The token source to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation. The task result contains the content of the file as a string.</returns>
         /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
         /// <exception cref="IOException">Thrown when an I/O error occurs while loading the file.</exception>
-        public static async Task<string> LoadAsync(string path)
+        public static async Task<string> LoadAsync(string path, CancellationTokenSource? cts = null)
         {
             ArgumentException.ThrowIfNullOrEmpty(path);
+            cts ??= new();
             try
             {
-                return await File.ReadAllTextAsync(path);
+                return await File.ReadAllTextAsync(path, cts.Token);
             }
             catch (Exception ex)
             {
+                cts.Cancel();
                 throw new IOException($"An error occurred while loading data from file: {path}", ex);
             }
         }
@@ -145,22 +150,24 @@ namespace SKitLs.Data.IO.Shortcuts
         /// </summary>
         /// <param name="obj">The object to save.</param>
         /// <param name="path">The path to the file where the object will be saved.</param>
+        /// <param name="cts">The token source to monitor for cancellation requests.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="obj"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is <see langword="null"/> or empty.</exception>
         /// <exception cref="IOException">Thrown when there is an error writing to the file.</exception>
-        public static async Task SaveJsonAsync(object obj, string path)
+        public static async Task SaveJsonAsync(object obj, string path, CancellationTokenSource? cts = null)
         {
             ArgumentNullException.ThrowIfNull(obj);
             ArgumentException.ThrowIfNullOrEmpty(path);
-            
+            cts ??= new();
             try
             {
                 path = FitJsonPath(path);
                 var jsonData = JsonConvert.SerializeObject(obj, JsonSerializerSettings);
-                await File.WriteAllTextAsync(path, jsonData);
+                await File.WriteAllTextAsync(path, jsonData, cts.Token);
             }
             catch (Exception ex)
             {
+                cts.Cancel();
                 throw new IOException($"An error occurred while saving JSON data to file: {path}", ex);
             }
         }
@@ -197,26 +204,28 @@ namespace SKitLs.Data.IO.Shortcuts
         /// Asynchronously loads an object from a specified file in JSON format.
         /// </summary>
         /// <param name="path">The path to the file where the object is saved.</param>
+        /// <param name="cts">The token source to monitor for cancellation requests.</param>
         /// <returns>The deserialized object from the file.</returns>
         /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is null or empty.</exception>
         /// <exception cref="FileNotFoundException">Thrown when the file specified by <paramref name="path"/> does not exist.</exception>
         /// <exception cref="IOException">Thrown when there is an error reading from the file.</exception>
         /// <exception cref="JsonSerializationException">Thrown when there is an error deserializing the JSON data.</exception>
-        public static async Task<object> LoadJsonAsync(string path)
+        public static async Task<object> LoadJsonAsync(string path, CancellationTokenSource? cts = null)
         {
             ArgumentException.ThrowIfNullOrEmpty(path);
-
+            cts ??= new();
             try
             {
                 path = FitJsonPath(path);
                 if (!File.Exists(path))
                     throw new FileNotFoundException($"The file specified does not exist: {path}");
 
-                string jsonData = await File.ReadAllTextAsync(path);
+                string jsonData = await File.ReadAllTextAsync(path, cts.Token);
                 return JsonConvert.DeserializeObject(jsonData, JsonSerializerSettings) ?? throw new JsonSerializationException($"Unable to deserialize object.");
             }
             catch (Exception ex) when (ex is IOException || ex is JsonSerializationException)
             {
+                cts.Cancel();
                 throw new IOException($"An error occurred while loading JSON data from file: {path}", ex);
             }
         }
@@ -255,26 +264,28 @@ namespace SKitLs.Data.IO.Shortcuts
         /// </summary>
         /// <typeparam name="T">The type of object to load.</typeparam>
         /// <param name="path">The path to the file where the object is saved.</param>
+        /// <param name="cts">The token source to monitor for cancellation requests.</param>
         /// <returns>The deserialized object from the file.</returns>
         /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is null or empty.</exception>
         /// <exception cref="FileNotFoundException">Thrown when the file specified by <paramref name="path"/> does not exist.</exception>
         /// <exception cref="IOException">Thrown when there is an error reading from the file.</exception>
         /// <exception cref="JsonSerializationException">Thrown when there is an error deserializing the JSON data.</exception>
-        public static async Task<T> LoadJsonAsync<T>(string path)
+        public static async Task<T> LoadJsonAsync<T>(string path, CancellationTokenSource? cts = null)
         {
             ArgumentException.ThrowIfNullOrEmpty(path);
-
+            cts ??= new();
             try
             {
                 path = FitJsonPath(path);
                 if (!File.Exists(path))
                     throw new FileNotFoundException($"The file specified does not exist: {path}");
 
-                var jsonDataLines = await File.ReadAllLinesAsync(path);
+                var jsonDataLines = await File.ReadAllLinesAsync(path, cts.Token);
                 return JsonConvert.DeserializeObject<T>(string.Join("\n", jsonDataLines), JsonSerializerSettings) ?? throw new JsonSerializationException($"Unable to deserialize object.");
             }
             catch (Exception ex) when (ex is IOException || ex is JsonSerializationException)
             {
+                cts.Cancel();
                 throw new IOException($"An error occurred while loading JSON data from file: {path}", ex);
             }
         }
@@ -326,17 +337,20 @@ namespace SKitLs.Data.IO.Shortcuts
         /// Asynchronously loads the content of a file as a list of lines.
         /// </summary>
         /// <param name="path">The path to the file.</param>
+        /// <param name="cts">The token source to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation. The task result contains a list of lines from the file.</returns>
         /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
         /// <exception cref="IOException">Thrown when an I/O error occurs while loading the file.</exception>
-        public static async Task<List<string>> LoadLinesAsync(string path)
+        public static async Task<List<string>> LoadLinesAsync(string path, CancellationTokenSource? cts = null)
         {
+            cts ??= new();
             try
             {
-                return [.. await File.ReadAllLinesAsync(path)];
+                return [.. await File.ReadAllLinesAsync(path, cts.Token)];
             }
             catch (Exception ex)
             {
+                cts.Cancel();
                 throw new IOException($"An error occurred while loading data from file: {path}", ex);
             }
         }
@@ -367,20 +381,30 @@ namespace SKitLs.Data.IO.Shortcuts
         /// </summary>
         /// <param name="path">The path to the file.</param>
         /// <param name="separator">The string used to separate keys from values.</param>
+        /// <param name="cts">The token source to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation. The task result contains a dictionary with key-value pairs.</returns>
         /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
         /// <exception cref="IOException">Thrown when an I/O error occurs while loading the file.</exception>
-        public static async Task<Dictionary<string, string>> LoadPairsAsync(string path, string separator = "=")
+        public static async Task<Dictionary<string, string>> LoadPairsAsync(string path, string separator = "=", CancellationTokenSource? cts = null)
         {
             ArgumentException.ThrowIfNullOrEmpty(path);
-            var result = new Dictionary<string, string>();
-            var lines = await LoadLinesAsync(path);
-            foreach (var line in lines)
+            cts ??= new();
+            try
             {
-                var values = line.Split(separator).Select(x => x.Trim()).ToList();
-                result.Add(values[0], string.Join(separator, values.Skip(1)));
+                var result = new Dictionary<string, string>();
+                var lines = await LoadLinesAsync(path);
+                foreach (var line in lines)
+                {
+                    var values = line.Split(separator).Select(x => x.Trim()).ToList();
+                    result.Add(values[0], string.Join(separator, values.Skip(1)));
+                }
+                return result;
             }
-            return result;
+            catch (Exception ex)
+            {
+                cts.Cancel();
+                throw new IOException($"An error occurred while loading data from file: {path}", ex);
+            }
         }
 
         /// <summary>
@@ -397,10 +421,11 @@ namespace SKitLs.Data.IO.Shortcuts
         /// </summary>
         /// <param name="lines">The lines to save.</param>
         /// <param name="path">The path to the file.</param>
+        /// <param name="cts">The token source to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous save operation.</returns>
         /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
         /// <exception cref="IOException">Thrown when an I/O error occurs while saving the file.</exception>
-        public static async Task SaveLinesAsync(IEnumerable<string> lines, string path) => await string.Join(Environment.NewLine, lines).SaveAsync(path);
+        public static async Task SaveLinesAsync(IEnumerable<string> lines, string path, CancellationTokenSource? cts = null) => await string.Join(Environment.NewLine, lines).SaveAsync(path, cts);
 
         /// <summary>
         /// Saves a collection of lines to a file.
@@ -416,10 +441,11 @@ namespace SKitLs.Data.IO.Shortcuts
         /// </summary>
         /// <param name="lines">The lines to save.</param>
         /// <param name="path">The path to the file.</param>
+        /// <param name="cts">The token source to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous save operation.</returns>
         /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
         /// <exception cref="IOException">Thrown when an I/O error occurs while saving the file.</exception>
-        public static async Task SaveAsLinesAsync(this IEnumerable<string> lines, string path) => await SaveLinesAsync(lines, path);
+        public static async Task SaveAsLinesAsync(this IEnumerable<string> lines, string path, CancellationTokenSource? cts = null) => await SaveLinesAsync(lines, path, cts);
 
         /// <summary>
         /// Saves a collection of key-value pairs to a file, each pair on a new line separated by a specified <paramref name="separator"/>.
@@ -441,10 +467,11 @@ namespace SKitLs.Data.IO.Shortcuts
         /// <param name="pairs">The key-value pairs to save.</param>
         /// <param name="path">The path to the file.</param>
         /// <param name="separator">The separator used between keys and values.</param>
+        /// <param name="cts">The token source to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous save operation.</returns>
         /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
         /// <exception cref="IOException">Thrown when an I/O error occurs while saving the file.</exception>
-        public static async Task SavePairsAsync<TKey, TValue>(IDictionary<TKey, TValue> pairs, string path, string separator = " = ") => await SaveLinesAsync(pairs.Select(x => $"{x.Key}{separator}{x.Value}"), path);
+        public static async Task SavePairsAsync<TKey, TValue>(IDictionary<TKey, TValue> pairs, string path, string separator = " = ", CancellationTokenSource? cts = null) => await SaveLinesAsync(pairs.Select(x => $"{x.Key}{separator}{x.Value}"), path, cts);
 
         /// <summary>
         /// Saves a collection of key-value pairs to a file, each pair on a new line separated by a specified <paramref name="separator"/>.
@@ -466,10 +493,11 @@ namespace SKitLs.Data.IO.Shortcuts
         /// <param name="pairs">The key-value pairs to save.</param>
         /// <param name="path">The path to the file.</param>
         /// <param name="separator">The separator used between keys and values.</param>
+        /// <param name="cts">The token source to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous save operation.</returns>
         /// <exception cref="ArgumentException">Thrown when the <paramref name="path"/> is null or empty.</exception>
         /// <exception cref="IOException">Thrown when an I/O error occurs while saving the file.</exception>
-        public static async Task SaveAsPairsAsync<TKey, TValue>(this IDictionary<TKey, TValue> pairs, string path, string separator = " = ") => await SavePairsAsync(pairs, path, separator);
+        public static async Task SaveAsPairsAsync<TKey, TValue>(this IDictionary<TKey, TValue> pairs, string path, string separator = " = ", CancellationTokenSource? cts = null) => await SavePairsAsync(pairs, path, separator, cts);
         #endregion
     }
 }

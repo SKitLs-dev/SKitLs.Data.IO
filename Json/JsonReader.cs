@@ -83,10 +83,10 @@ namespace SKitLs.Data.IO.Json
         /// <exception cref="NotSupportedException">Thrown when the type parameter is not supported.</exception>
         public async Task<IEnumerable<T>> ReadDataAsync<T>(CancellationTokenSource? cts) where T : class
         {
-            if (typeof(T) == typeof(TData))
-                return (await ReadDataAsync(cts)).Select(x => (x as T)!);
-            else
+            if (!typeof(T).IsAssignableFrom(typeof(TData)))
                 throw new NotSupportedException($"Type {typeof(T).Name} is not supported.");
+
+            return (await ReadDataAsync(cts)).Select(x => (x as T)!);
         }
     }
 }

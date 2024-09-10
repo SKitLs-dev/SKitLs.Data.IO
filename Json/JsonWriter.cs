@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
-using OfficeOpenXml.Drawing.Chart;
 using SKitLs.Data.Core.IO;
-using System.Text;
+using SKitLs.Data.IO.Shortcuts;
 
 namespace SKitLs.Data.IO.Json
 {
@@ -30,26 +29,26 @@ namespace SKitLs.Data.IO.Json
         /// <inheritdoc cref="WriteDataAsync(TData, CancellationTokenSource?)"/>
         public bool WriteData<T>(T item) where T : class
         {
-            return WriteDataAsync(item, null).Result;
+            return WriteDataAsync(item).Result;
         }
 
         /// <inheritdoc/>
         /// <inheritdoc cref="WriteDataListAsync(IEnumerable{TData}, CancellationTokenSource?)"/>
         public bool WriteDataList(IEnumerable<TData> items)
         {
-            return WriteDataListAsync(items, null).Result;
+            return WriteDataListAsync(items).Result;
         }
 
         /// <inheritdoc/>
         /// <inheritdoc cref="WriteDataListAsync(IEnumerable{TData}, CancellationTokenSource?)"/>
         public bool WriteDataList<T>(IEnumerable<T> items) where T : class
         {
-            return WriteDataListAsync(items, null).Result;
+            return WriteDataListAsync(items).Result;
         }
 
         /// <inheritdoc/>
         /// <inheritdoc cref="WriteDataAsyncInternal(TData, CancellationTokenSource?)"/>
-        public async Task<bool> WriteDataAsync(TData item, CancellationTokenSource? cts)
+        public async Task<bool> WriteDataAsync(TData item, CancellationTokenSource? cts = null)
         {
             return await WriteDataAsyncInternal(item, cts);
         }
@@ -57,7 +56,7 @@ namespace SKitLs.Data.IO.Json
         /// <inheritdoc/>
         /// <inheritdoc cref="WriteDataAsyncInternal(TData, CancellationTokenSource?)"/>
         /// <exception cref="NotSupportedException">Thrown when the type parameter is not supported.</exception>
-        public async Task<bool> WriteDataAsync<T>(T item, CancellationTokenSource? cts) where T : class
+        public async Task<bool> WriteDataAsync<T>(T item, CancellationTokenSource? cts = null) where T : class
         {
             if (!typeof(T).IsAssignableFrom(typeof(TData)))
                 throw new NotSupportedException($"Type {typeof(T).Name} is not supported.");
@@ -67,7 +66,7 @@ namespace SKitLs.Data.IO.Json
 
         /// <inheritdoc/>
         /// <inheritdoc cref="WriteDataAsyncInternal(TData, CancellationTokenSource?)"/>
-        public async Task<bool> WriteDataListAsync(IEnumerable<TData> items, CancellationTokenSource? cts)
+        public async Task<bool> WriteDataListAsync(IEnumerable<TData> items, CancellationTokenSource? cts = null)
         {
             return await WriteDataListAsyncInternal(items, cts);
         }
@@ -75,7 +74,7 @@ namespace SKitLs.Data.IO.Json
         /// <inheritdoc/>
         /// <inheritdoc cref="WriteDataAsyncInternal(TData, CancellationTokenSource?)"/>
         /// <exception cref="NotSupportedException">Thrown when the type parameter is not supported.</exception>
-        public async Task<bool> WriteDataListAsync<T>(IEnumerable<T> items, CancellationTokenSource? cts) where T : class
+        public async Task<bool> WriteDataListAsync<T>(IEnumerable<T> items, CancellationTokenSource? cts = null) where T : class
         {
             if (!typeof(T).IsAssignableFrom(typeof(TData)))
                 throw new NotSupportedException($"Type {typeof(T).Name} is not supported.");
@@ -92,7 +91,7 @@ namespace SKitLs.Data.IO.Json
         /// <inheritdoc cref="List{T}.FindIndex(Predicate{T})"/>
         /// <inheritdoc cref="ReadAllItemsAsync{T}(CancellationTokenSource?)"/>
         /// <inheritdoc cref="WriteAllItemsAsync{T}(List{T}, CancellationTokenSource?)"/>
-        private async Task<bool> WriteDataAsyncInternal(TData item, CancellationTokenSource? cts)
+        private async Task<bool> WriteDataAsyncInternal(TData item, CancellationTokenSource? cts = null)
         {
             var items = await ReadAllItemsAsync<TData>(cts);
             var existingItemIndex = items.FindIndex(x => x.GetId().Equals(item.GetId()));
@@ -119,7 +118,7 @@ namespace SKitLs.Data.IO.Json
         /// <returns>A task that represents the asynchronous write operation. The task result contains a boolean indicating whether the write operation was successful.</returns>
         /// <inheritdoc cref="ReadAllItemsAsync{T}(CancellationTokenSource?)"/>
         /// <inheritdoc cref="WriteAllItemsAsync{T}(List{T}, CancellationTokenSource?)"/>
-        private async Task<bool> WriteDataListAsyncInternal(IEnumerable<TData> items, CancellationTokenSource? cts)
+        private async Task<bool> WriteDataListAsyncInternal(IEnumerable<TData> items, CancellationTokenSource? cts = null)
         {
             var allItems = await ReadAllItemsAsync<TData>(cts);
             foreach (var item in items)
@@ -148,7 +147,7 @@ namespace SKitLs.Data.IO.Json
         /// <inheritdoc cref="JsonConvert.DeserializeObject(string, JsonSerializerSettings)"/>
         /// <exception cref="FileNotFoundException">Thrown when the JSON file is not found.</exception>
         /// <exception cref="JsonSerializationException">Thrown when there is an error during JSON deserialization.</exception>
-        private async Task<List<T>> ReadAllItemsAsync<T>(CancellationTokenSource? cts) where T : class
+        private async Task<List<T>> ReadAllItemsAsync<T>(CancellationTokenSource? cts = null) where T : class
         {
             if (!File.Exists(DataPath))
             {
@@ -178,21 +177,25 @@ namespace SKitLs.Data.IO.Json
         /// <returns>A task that represents the asynchronous write operation.</returns>
         /// <inheritdoc cref="StreamWriter.WriteAsync(string?)"/>
         /// <inheritdoc cref="JsonConvert.SerializeObject(object?, JsonSerializerSettings?)"/>
-        private async Task WriteAllItemsAsync<T>(List<T> items, CancellationTokenSource? cts) where T : class
+        private async Task WriteAllItemsAsync<T>(List<T> items, CancellationTokenSource? cts = null) where T : class
         {
             cts ??= new();
-            if (!File.Exists(DataPath))
+            try
             {
-                if (CreateNewFile)
-                    File.Create(DataPath).Close();
-                else
-                    throw new FileNotFoundException($"JSON file not found at path: {DataPath}", DataPath);
+                if (!File.Exists(DataPath))
+                {
+                    if (CreateNewFile)
+                        File.Create(DataPath).Close();
+                    else
+                        throw new FileNotFoundException($"JSON file not found at path: {DataPath}", DataPath);
+                }
+
+                await HotIO.SaveJsonAsync(items, DataPath, cts);
             }
-            
-            using var writer = new StreamWriter(DataPath, false);
-            var jsonData = JsonConvert.SerializeObject(items, JsonSerializerSettings);
-            var builder = new StringBuilder(jsonData);
-            await writer.WriteAsync(builder, cts.Token);
+            catch (Exception)
+            {
+                cts.Cancel();
+            }
         }
     }
 }

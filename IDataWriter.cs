@@ -34,7 +34,7 @@
         /// <param name="item">The data item to write.</param>
         /// <param name="cts">Optional: cancellation token source to cancel the write operation.</param>
         /// <returns><see langword="true"/> if the write operation was successful; otherwise, <see langword="false"/>.</returns>
-        public Task<bool> WriteDataAsync<TData>(TData item, CancellationTokenSource? cts) where TData : class;
+        public Task<bool> WriteDataAsync<TData>(TData item, CancellationTokenSource? cts = null) where TData : class;
 
         /// <summary>
         /// Writes multiple data items asynchronously to the data source.
@@ -43,6 +43,6 @@
         /// <param name="items">The collection of data items to write.</param>
         /// <param name="cts">Optional: cancellation token source to cancel the write operation.</param>
         /// <returns><see langword="true"/> if the write operation was successful; otherwise, <see langword="false"/>.</returns>
-        public Task<bool> WriteDataListAsync<TData>(IEnumerable<TData> items, CancellationTokenSource? cts) where TData : class;
+        public Task<bool> WriteDataListAsync<TData>(IEnumerable<TData> items, CancellationTokenSource? cts = null) where TData : class;
     }
 }

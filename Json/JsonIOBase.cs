@@ -16,7 +16,10 @@ namespace SKitLs.Data.IO.Json
         /// <summary>
         /// Gets or sets the default JSON serializer settings used for serialization.
         /// </summary>
-        public static JsonSerializerSettings DefaultJsonSerializerSettings { get; set; } = new();
+        public static JsonSerializerSettings DefaultJsonSerializerSettings { get; set; } = new()
+        {
+            Formatting = Formatting.Indented,
+        };
 
         /// <summary>
         /// Gets or sets the name of the data source, defaulting to "Json File".

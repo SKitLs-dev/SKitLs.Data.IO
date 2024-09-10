@@ -6,7 +6,7 @@ namespace SKitLs.Data.IO.Shortcuts
     /// <summary>
     /// Provides utility methods for saving and loading data to and from files.
     /// </summary>
-    [Obsolete("Beta. Not tested.")]
+    //[Obsolete("Beta. Not tested.")]
     public static class HotIO
     {
         /// <summary>

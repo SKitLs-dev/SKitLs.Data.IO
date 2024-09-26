@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using SKitLs.Utils.Extensions.Strings;
+using System.Reflection;
 
 namespace SKitLs.Data.IO.Shortcuts
 {
@@ -15,6 +16,11 @@ namespace SKitLs.Data.IO.Shortcuts
         public static string? JsonExtension { get; set; } = ".json";
 
         /// <summary>
+        /// Determines whether relative path should be unified by appending Executing Assembly location.
+        /// </summary>
+        public static bool AutoFitPath { get; set; } = true;
+
+        /// <summary>
         /// Checks and corrects the provided <paramref name="path"/> as a *.json using <see cref="JsonExtension"/> property value.
         /// </summary>
         /// <param name="path"></param>
@@ -24,6 +30,26 @@ namespace SKitLs.Data.IO.Shortcuts
             if (JsonExtension is not null && !path.EndsWith(JsonExtension))
                 path += JsonExtension;
             return path;
+        }
+
+        /// <summary>
+        /// Fits relative path by appending Executing Assembly location.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static string FitAbsolutePath(string path)
+        {
+            var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            if (!Path.IsPathRooted(path) && AutoFitPath && assemblyPath is not null)
+            {
+                return Path.Combine(assemblyPath, path);
+            }
+            return path;
+        }
+
+        private static string FitPath(string path)
+        {
+            return FitAbsolutePath(path);
         }
 
         /// <summary>
@@ -38,7 +64,7 @@ namespace SKitLs.Data.IO.Shortcuts
             ArgumentException.ThrowIfNullOrEmpty(path);
             try
             {
-                File.WriteAllText(path, text);
+                File.WriteAllText(FitPath(path), text);
             }
             catch (Exception ex)
             {
@@ -60,7 +86,7 @@ namespace SKitLs.Data.IO.Shortcuts
             cts ??= new();
             try
             {
-                await File.WriteAllTextAsync(path, text, cts.Token);
+                await File.WriteAllTextAsync(FitPath(path), text, cts.Token);
             }
             catch (Exception ex)
             {
@@ -81,7 +107,7 @@ namespace SKitLs.Data.IO.Shortcuts
             ArgumentException.ThrowIfNullOrEmpty(path);
             try
             {
-                return File.ReadAllText(path);
+                return File.ReadAllText(FitPath(path));
             }
             catch (Exception ex)
             {
@@ -103,7 +129,7 @@ namespace SKitLs.Data.IO.Shortcuts
             cts ??= new();
             try
             {
-                return await File.ReadAllTextAsync(path, cts.Token);
+                return await File.ReadAllTextAsync(FitPath(path), cts.Token);
             }
             catch (Exception ex)
             {
@@ -118,7 +144,10 @@ namespace SKitLs.Data.IO.Shortcuts
         /// <summary>
         /// Gets or sets the JSON serializer settings used for serialization.
         /// </summary>
-        public static JsonSerializerSettings JsonSerializerSettings { get; set; } = new();
+        public static JsonSerializerSettings JsonSerializerSettings { get; set; } = new()
+        {
+            Formatting = Formatting.Indented
+        };
 
         /// <summary>
         /// Saves an object to a specified file in JSON format.
@@ -137,7 +166,7 @@ namespace SKitLs.Data.IO.Shortcuts
             {
                 path = FitJsonPath(path);
                 var jsonData = JsonConvert.SerializeObject(obj, JsonSerializerSettings);
-                File.WriteAllText(path, jsonData);
+                Save(jsonData, path);
             }
             catch (Exception ex)
             {
@@ -163,7 +192,7 @@ namespace SKitLs.Data.IO.Shortcuts
             {
                 path = FitJsonPath(path);
                 var jsonData = JsonConvert.SerializeObject(obj, JsonSerializerSettings);
-                await File.WriteAllTextAsync(path, jsonData, cts.Token);
+                await SaveAsync(jsonData, path, cts);
             }
             catch (Exception ex)
             {
@@ -191,7 +220,7 @@ namespace SKitLs.Data.IO.Shortcuts
                 if (!File.Exists(path))
                     throw new FileNotFoundException($"The file specified does not exist: {path}");
 
-                string jsonData = File.ReadAllText(path);
+                string jsonData = Load(path);
                 return JsonConvert.DeserializeObject(jsonData, JsonSerializerSettings) ?? throw new JsonSerializationException($"Unable to deserialize object.");
             }
             catch (Exception ex) when (ex is IOException || ex is JsonSerializationException)
@@ -220,7 +249,7 @@ namespace SKitLs.Data.IO.Shortcuts
                 if (!File.Exists(path))
                     throw new FileNotFoundException($"The file specified does not exist: {path}");
 
-                string jsonData = await File.ReadAllTextAsync(path, cts.Token);
+                string jsonData = await LoadAsync(path, cts);
                 return JsonConvert.DeserializeObject(jsonData, JsonSerializerSettings) ?? throw new JsonSerializationException($"Unable to deserialize object.");
             }
             catch (Exception ex) when (ex is IOException || ex is JsonSerializationException)
@@ -250,7 +279,7 @@ namespace SKitLs.Data.IO.Shortcuts
                 if (!File.Exists(path))
                     throw new FileNotFoundException($"The file specified does not exist: {path}");
 
-                var jsonData = File.ReadAllText(path);
+                var jsonData = Load(path);
                 return JsonConvert.DeserializeObject<T>(jsonData, JsonSerializerSettings) ?? throw new JsonSerializationException($"Unable to deserialize object.");
             }
             catch (Exception ex) when (ex is IOException || ex is JsonSerializationException)
@@ -280,7 +309,7 @@ namespace SKitLs.Data.IO.Shortcuts
                 if (!File.Exists(path))
                     throw new FileNotFoundException($"The file specified does not exist: {path}");
 
-                var jsonDataLines = await File.ReadAllLinesAsync(path, cts.Token);
+                var jsonDataLines = await LoadAsync(path);
                 return JsonConvert.DeserializeObject<T>(string.Join("\n", jsonDataLines), JsonSerializerSettings) ?? throw new JsonSerializationException($"Unable to deserialize object.");
             }
             catch (Exception ex) when (ex is IOException || ex is JsonSerializationException)
@@ -325,7 +354,7 @@ namespace SKitLs.Data.IO.Shortcuts
         {
             try
             {
-                return [.. File.ReadAllLines(path)];
+                return [.. File.ReadAllLines(FitPath(path))];
             }
             catch (Exception ex)
             {
@@ -346,7 +375,7 @@ namespace SKitLs.Data.IO.Shortcuts
             cts ??= new();
             try
             {
-                return [.. await File.ReadAllLinesAsync(path, cts.Token)];
+                return [.. await File.ReadAllLinesAsync(FitPath(path), cts.Token)];
             }
             catch (Exception ex)
             {
